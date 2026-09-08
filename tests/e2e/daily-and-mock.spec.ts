@@ -4,9 +4,19 @@ test.describe('今日の10問', () => {
   test('10問すべて回答すると結果画面が表示される', async ({ page }) => {
     await page.goto('/daily');
     for (let i = 0; i < 10; i++) {
-      await page.locator('.quiz-choice').first().click();
+      // トレース問題の有無で設問カードの高さが大きく変わり、直後のクリックが
+      // 前フレームの要素（trace-source-line等）にヒットテストされてリトライが
+      // 延々と続くことがある（AGENTS.md「既知の落とし穴」参照）。
+      // click({force:true})は「隠れていないか」だけでなく「disabledでないか」の
+      // チェックまで一緒にスキップしてしまい、直前の設問の disabled ボタンに
+      // 空振りするリグレッションを起こしたため使わない。dispatchEvent('click')で
+      // 座標ベースのヒットテストを回避しつつ、ブラウザ本来のclick()セマンティクス
+      // （disabled要素へのclickは無視される）は維持する。
+      await page.locator('.quiz-choice').first().dispatchEvent('click');
       await expect(page.locator('.quiz-feedback')).toBeVisible();
-      await page.getByRole('button', { name: /次の問題へ|結果を見る/ }).click();
+      // 「次の問題へ」ボタン自体はdisabledになることがないため、
+      // 座標ヒットテストのゆらぎだけを避ければよく、同じくdispatchEvent('click')にしている。
+      await page.getByRole('button', { name: /次の問題へ|結果を見る/ }).dispatchEvent('click');
     }
     await expect(page.getByText(/\d+ \/ 10 問正解/)).toBeVisible();
     await page.getByRole('button', { name: 'ホームに戻る' }).click();
@@ -22,8 +32,8 @@ test.describe('模擬試験', () => {
     await expect(page.getByText('科目A 模擬試験')).toBeVisible();
     await expect(page.getByText(/残り \d{2}:\d{2}/)).toBeVisible();
 
-    // 最初の問題に解答
-    await page.locator('.quiz-choice').first().click();
+    // 最初の問題に解答（上のテストと同じ理由でdispatchEvent('click')にしている）
+    await page.locator('.quiz-choice').first().dispatchEvent('click');
     await expect(page.locator('.quiz-choice.is-selected')).toBeVisible();
 
     // 次へ進めることを確認

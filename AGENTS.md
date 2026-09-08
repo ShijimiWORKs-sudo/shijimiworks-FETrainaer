@@ -51,17 +51,31 @@ Playwright E2Eは`playwright.config.ts`の`webServer`設定で`npm run preview`�
 コンテンツの高さが動的に変わる画面（解答直後のフィードバック表示など）でヘッドレスChromiumの
 ヒットテストが不安定になり、Playwrightのクリックが延々とリトライされることがある
 （`body { overflow-anchor: none }`で回避済み。安易に削除しない）。
+問題数が増えてトレース問題（擬似言語・アルゴリズム）の出現比率が上がったことで、
+「今日の10問」E2E（`tests/e2e/daily-and-mock.spec.ts`）でも同種のヒットテスト不安定化が
+再発することを確認した。設問が変わるたびに`TraceVisualizer`の有無でカード高さが大きく
+変動し、直後の`.quiz-choice`クリックが前フレームの`.trace-source-line`や`.quiz-choices`自体に
+奪われてリトライが30秒タイムアウトするケースがある。根本的なアニメーション等はコード上
+見当たらず（`overflow-anchor: none`は維持済み）、ヘッドレスChromiumの1フレーム分の
+レイアウト確定遅延が原因とみられる。
 
-**既知の落とし穴（GitHub Pagesデプロイ）:** このアプリはGitHub Pagesの
-`/<リポジトリ名>/`というサブパス配下にデプロイされる（`.github/workflows/deploy.yml`が
-ビルド時に`VITE_BASE_PATH`環境変数を設定する）。新しくアセットやリンクを追加する際、
-`/pwa-192.png`のようなドメイン直下決め打ちの絶対パスを増やさないこと
-（`public/`配下のファイルはVercelが自動でbaseを付与するが、コード内で組み立てる文字列URLは
-`import.meta.env.BASE_URL`を使う）。ルーティングは`main.tsx`の
-`<BrowserRouter basename={import.meta.env.BASE_URL}>`で吸収している。
-また、GitHub Pagesは静的ホスティングのためSPA内パスへの直接アクセス/リロードは404になるので、
-`public/404.html`（リダイレクト）と`index.html`冒頭のURL復元スクリプト
-（spa-github-pages方式）をセットで維持すること。
+対処として最初は`.click({ force: true })`を試したが、これは「他要素に隠れていないか」だけでなく
+「disabledでないか」のチェックまで一緒にスキップしてしまい、直前の設問がまだ`answered`状態
+（=選択肢がdisabled）のうちにクリックが空振りする新たなリグレッションを起こした（繰り返し実行で
+逆に失敗率が悪化することを確認済み）。最終的には`locator.dispatchEvent('click')`を使うことで、
+座標ベースのヒットテストを完全に回避しつつ、ブラウザ本来のclick()セマンティクス
+（disabled要素へのclickは無視される）は維持する形で解決した
+（`.quiz-choice`と「次の問題へ／結果を見る」ボタンの両方に適用）。
+`--repeat-each=15`程度の連続実行でも安定して全件成功することを確認済み。
+
+**デプロイについて:** リポジトリがPrivateのためGitHub Pagesは使わず、Netlify/Vercel
+（`netlify.toml` / `vercel.json`）でホスティングする。どちらもドメイン直下にデプロイされるため
+サブパス対応は不要（`vite.config.ts`の`VITE_BASE_PATH`は未設定＝`/`のまま使う）。
+将来的にサブパス配下へのデプロイが必要になった場合のために、
+`base`をビルド時の`VITE_BASE_PATH`環境変数で切り替えられる仕組みと、
+`main.tsx`の`<BrowserRouter basename={import.meta.env.BASE_URL}>`はそのまま残してある。
+SPAのルーティング救済（存在しないパスをindex.htmlにフォールバック）は
+Netlifyなら`netlify.toml`の`redirects`、Vercelなら`vercel.json`の`rewrites`で行っている。
 
 ## 問題データを追加する際の手順
 

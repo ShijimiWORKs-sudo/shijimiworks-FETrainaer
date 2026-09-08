@@ -66,25 +66,31 @@ Playwrightは`playwright.config.ts`の`webServer`設定により、`npm run prev
 このアプリはPWA（Progressive Web App）です。ネイティブアプリのようにホーム画面に追加して、
 オフラインでも起動できます。
 
-### 1. GitHub Pagesへのデプロイ（初回のみ設定）
+### 1. Netlify（または Vercel）へのデプロイ（初回のみ設定）
 
-`main`ブランチへのpush時に`.github/workflows/deploy.yml`が自動でビルド・デプロイします。
-初回のみ、GitHubリポジトリの **Settings → Pages → Build and deployment → Source** を
-「GitHub Actions」に設定してください。設定後、pushするたびに
-`https://<組織名>.github.io/<リポジトリ名>/`（例:
-`https://shijimiworks-sudo.github.io/shijimiworks-FETrainaer/`）に最新版が公開されます。
+リポジトリがPrivateのままGitHub Pagesを使うには有料プランが必要なため、無料枠のある
+Netlify・Vercelのどちらかを使う想定です。設定ファイルは両方用意してあります。
 
-サブパス配下（ドメイン直下ではない）へのデプロイに対応するため、ビルド時に
-`VITE_BASE_PATH=/<リポジトリ名>/` 環境変数でルートパスを指定しています
-（`vite.config.ts`参照）。ローカル開発・プレビュー・E2Eテストでは指定不要（`/`のまま）。
+**Netlifyの場合**
 
-GitHub Pagesは静的ホスティングのため、SPA内の任意パスへの直接アクセスやリロードは
-そのままでは404になります。`public/404.html`と`index.html`冒頭のスクリプトで
-（spa-github-pages方式の）リダイレクト救済を行っています。
+1. [Netlify](https://app.netlify.com)にログイン（GitHubアカウントで可）
+2. 「Add new site → Import an existing project」からこのリポジトリを選択
+3. ビルド設定は`netlify.toml`（`npm run build`、公開ディレクトリ`dist`）が自動で読み込まれる
+4. デプロイ完了後に発行される`https://<サイト名>.netlify.app`のようなURLが利用できる
+
+**Vercelの場合**
+
+1. [Vercel](https://vercel.com)にログイン（GitHubアカウントで可）
+2. 「Add New → Project」からこのリポジトリをインポート（Framework: Viteを自動検出）
+3. `vercel.json`のリライト設定によりSPAルーティングが機能する
+4. デプロイ完了後に発行される`https://<プロジェクト名>.vercel.app`のようなURLが利用できる
+
+どちらも、以後`main`ブランチにpushするたびに自動で再デプロイされる。
+リポジトリはPrivateのままで問題ない（ソースコードは公開されない）。
 
 ### 2. iPhoneのSafariでインストール
 
-1. iPhoneのSafariで、上記のGitHub PagesのURLを開く
+1. iPhoneのSafariで、上記でデプロイしたURLを開く
 2. 共有ボタン（□に↑）をタップ
 3. 「ホーム画面に追加」を選択
 

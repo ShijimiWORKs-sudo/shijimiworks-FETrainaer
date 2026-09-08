@@ -25,7 +25,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run preview -- --port 4173',
+    // --host 127.0.0.1 を明示しないと、'localhost'指定時にNode/ViteがIPv6(::1)に
+    // バインドすることがあり（特にGitHub Actionsのubuntuランナー）、baseURL/webServer.url
+    // で明示的にIPv4(127.0.0.1)を指定しているPlaywrightからの接続が届かずタイムアウトする。
+    command: 'npm run preview -- --port 4173 --host 127.0.0.1',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

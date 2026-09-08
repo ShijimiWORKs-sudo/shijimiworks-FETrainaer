@@ -4,14 +4,21 @@ import {
   assign,
   assignAt,
   and,
+  bool,
+  div,
   eq,
   forTo,
+  gt,
+  gte,
   idx,
   ifStmt,
   len,
+  lte,
   lt,
+  mod,
   mul,
   n,
+  output,
   str,
   sub,
   v,
@@ -383,6 +390,393 @@ export const pseudocodeQuestions: Question[] = [
         assign(2, 'i', n(0)),
         whileStmt(3, lt(v('i'), n(5)), [
           ifStmt(4, eq(idx('chars', v('i')), str('a')), [assign(4, 'count', add(v('count'), n(1)))]),
+          assign(5, 'i', add(v('i'), n(1))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-011',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '偶数の個数を数える',
+    body:
+      '配列 `arr` の値が `[3, 4, 7, 8, 10, 15, 6]` であるとき、次の擬似言語を実行して偶数の個数を数える。\n\n' +
+      '```\n(1) count ← 0\n(2) i ← 0\n(3) iが7未満の間、(4)〜(5)を繰り返す\n(4)   もしarr[i] mod 2 = 0ならば count ← count + 1\n(5)   i ← i + 1\n```\n\n' +
+      '実行終了時の `count` の値はどれか。',
+    choices: [
+      { id: '1', text: '2' },
+      { id: '2', text: '3' },
+      { id: '3', text: '4' },
+      { id: '4', text: '5' },
+    ],
+    answerId: '3',
+    explanation: '偶数は4, 8, 10, 6の4個であるため、countは4になる。剰余（mod）が0かどうかで偶数判定を行う。',
+    trace: {
+      sourceLines: [
+        'count ← 0',
+        'i ← 0',
+        'iが7未満の間、繰り返す',
+        '  もしarr[i] mod 2 = 0ならば count ← count + 1',
+        '  i ← i + 1',
+      ],
+      initialVars: { arr: [3, 4, 7, 8, 10, 15, 6] },
+      program: [
+        assign(1, 'count', n(0)),
+        assign(2, 'i', n(0)),
+        whileStmt(3, lt(v('i'), n(7)), [
+          ifStmt(4, eq(mod(idx('arr', v('i')), n(2)), n(0)), [assign(4, 'count', add(v('count'), n(1)))]),
+          assign(5, 'i', add(v('i'), n(1))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-012',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 1,
+    title: '配列の総乗',
+    body:
+      '配列 `arr` の値が `[1, 2, 3, 4]` であるとき、次の擬似言語を実行して全要素の積を求める。\n\n' +
+      '```\n(1) product ← 1\n(2) i ← 0\n(3) iが4未満の間、(4)〜(5)を繰り返す\n(4)   product ← product × arr[i]\n(5)   i ← i + 1\n```\n\n' +
+      '実行終了時の `product` の値はどれか。',
+    choices: [
+      { id: '1', text: '10' },
+      { id: '2', text: '12' },
+      { id: '3', text: '20' },
+      { id: '4', text: '24' },
+    ],
+    answerId: '4',
+    explanation: '1×2×3×4 = 24。ループのたびにproductにarr[i]を掛け合わせていく。',
+    trace: {
+      sourceLines: [
+        'product ← 1',
+        'i ← 0',
+        'iが4未満の間、繰り返す',
+        '  product ← product × arr[i]',
+        '  i ← i + 1',
+      ],
+      initialVars: { arr: [1, 2, 3, 4] },
+      program: [
+        assign(1, 'product', n(1)),
+        assign(2, 'i', n(0)),
+        whileStmt(3, lt(v('i'), n(4)), [
+          assign(4, 'product', mul(v('product'), idx('arr', v('i')))),
+          assign(5, 'i', add(v('i'), n(1))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-013',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '全要素が正の値か判定',
+    body:
+      '配列 `arr` の値が `[5, 3, -2, 8, 1]` であるとき、次の擬似言語を実行して全要素が正の値かどうかを判定する。\n\n' +
+      '```\n(1) allPositive ← 真\n(2) i ← 0\n(3) iが5未満 かつ allPositiveが真である間、(4)〜(5)を繰り返す\n(4)   もしarr[i] < 0ならば allPositive ← 偽\n(5)   i ← i + 1\n```\n\n' +
+      '実行終了時の `allPositive` の値はどれか。',
+    choices: [
+      { id: '1', text: '真（すべて正の値）' },
+      { id: '2', text: '偽（負の値を含む）' },
+      { id: '3', text: 'エラーになる' },
+      { id: '4', text: '判定できない' },
+    ],
+    answerId: '2',
+    explanation:
+      'arr[2] = -2 が負の値であるため、i=2の時点でallPositiveは偽に更新される。かつ条件による短絡的な打ち切りにより、それ以降の要素は判定不要になる。',
+    trace: {
+      sourceLines: [
+        'allPositive ← 真',
+        'i ← 0',
+        'iが5未満 かつ allPositiveが真である間、繰り返す',
+        '  もしarr[i] < 0ならば allPositive ← 偽',
+        '  i ← i + 1',
+      ],
+      initialVars: { arr: [5, 3, -2, 8, 1] },
+      program: [
+        assign(1, 'allPositive', bool(true)),
+        assign(2, 'i', n(0)),
+        whileStmt(3, and(lt(v('i'), n(5)), v('allPositive')), [
+          ifStmt(4, lt(idx('arr', v('i')), n(0)), [assign(4, 'allPositive', bool(false))]),
+          assign(5, 'i', add(v('i'), n(1))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-014',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '偶数インデックスの合計',
+    body:
+      '配列 `arr` の値が `[2, 5, 8, 1, 9, 4]` であるとき、次の擬似言語を実行してインデックスが偶数（0, 2, 4）の要素の合計を求める。\n\n' +
+      '```\n(1) sum ← 0\n(2) iを0から4まで2ずつ増やしながら、(3)を実行する\n(3)   sum ← sum + arr[i]\n```\n\n' +
+      '実行終了時の `sum` の値はどれか。',
+    choices: [
+      { id: '1', text: '11' },
+      { id: '2', text: '15' },
+      { id: '3', text: '19' },
+      { id: '4', text: '29' },
+    ],
+    answerId: '3',
+    explanation:
+      '増分を2に指定したforループにより、iは0, 2, 4と変化する。arr[0]+arr[2]+arr[4] = 2+8+9 = 19となる。',
+    trace: {
+      sourceLines: ['sum ← 0', 'iを0から4まで2ずつ増やしながら、繰り返す', '  sum ← sum + arr[i]'],
+      initialVars: { arr: [2, 5, 8, 1, 9, 4] },
+      program: [
+        assign(1, 'sum', n(0)),
+        forTo(2, 'i', n(0), n(4), [assign(3, 'sum', add(v('sum'), idx('arr', v('i'))))], n(2)),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-015',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 1,
+    title: '閾値より大きい要素の個数',
+    body:
+      '配列 `arr` の値が `[10, 25, 3, 42, 17, 8]`、`threshold` が `15` であるとき、次の擬似言語を実行する。\n\n' +
+      '```\n(1) count ← 0\n(2) i ← 0\n(3) iが6未満の間、(4)〜(5)を繰り返す\n(4)   もしarr[i] > thresholdならば count ← count + 1\n(5)   i ← i + 1\n```\n\n' +
+      '実行終了時の `count`（thresholdより大きい要素の個数）の値はどれか。',
+    choices: [
+      { id: '1', text: '2' },
+      { id: '2', text: '3' },
+      { id: '3', text: '4' },
+      { id: '4', text: '6' },
+    ],
+    answerId: '2',
+    explanation: 'threshold(15)より大きい値は25, 42, 17の3個であるため、countは3になる。',
+    trace: {
+      sourceLines: [
+        'count ← 0',
+        'i ← 0',
+        'iが6未満の間、繰り返す',
+        '  もしarr[i] > thresholdならば count ← count + 1',
+        '  i ← i + 1',
+      ],
+      initialVars: { arr: [10, 25, 3, 42, 17, 8], threshold: 15 },
+      program: [
+        assign(1, 'count', n(0)),
+        assign(2, 'i', n(0)),
+        whileStmt(3, lt(v('i'), n(6)), [
+          ifStmt(4, gt(idx('arr', v('i')), v('threshold')), [assign(4, 'count', add(v('count'), n(1)))]),
+          assign(5, 'i', add(v('i'), n(1))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-016',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '最大値と最小値の差（範囲）',
+    body:
+      '配列 `arr` の値が `[8, 3, 15, 6, 2, 11]` であるとき、次の擬似言語を実行して最大値と最小値の差を求める。\n\n' +
+      '```\n(1) max ← arr[0]\n(2) min ← arr[0]\n(3) i ← 1\n(4) iが6未満の間、(5)〜(7)を繰り返す\n(5)   もしarr[i] > maxならば max ← arr[i]\n(6)   もしarr[i] < minならば min ← arr[i]\n(7)   i ← i + 1\n(8) range ← max - min\n```\n\n' +
+      '実行終了時の `range` の値はどれか。',
+    choices: [
+      { id: '1', text: '9' },
+      { id: '2', text: '11' },
+      { id: '3', text: '13' },
+      { id: '4', text: '15' },
+    ],
+    answerId: '3',
+    explanation: '最大値は15、最小値は2であるため、range = 15 - 2 = 13となる。',
+    trace: {
+      sourceLines: [
+        'max ← arr[0]',
+        'min ← arr[0]',
+        'i ← 1',
+        'iが6未満の間、繰り返す',
+        '  もしarr[i] > maxならば max ← arr[i]',
+        '  もしarr[i] < minならば min ← arr[i]',
+        '  i ← i + 1',
+        'range ← max - min',
+      ],
+      initialVars: { arr: [8, 3, 15, 6, 2, 11] },
+      program: [
+        assign(1, 'max', idx('arr', n(0))),
+        assign(2, 'min', idx('arr', n(0))),
+        assign(3, 'i', n(1)),
+        whileStmt(4, lt(v('i'), n(6)), [
+          ifStmt(5, gt(idx('arr', v('i')), v('max')), [assign(5, 'max', idx('arr', v('i')))]),
+          ifStmt(6, lt(idx('arr', v('i')), v('min')), [assign(6, 'min', idx('arr', v('i')))]),
+          assign(7, 'i', add(v('i'), n(1))),
+        ]),
+        assign(8, 'range', sub(v('max'), v('min'))),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-017',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '成績の判定（多分岐）',
+    body:
+      '`score` の値が `72` であるとき、次の擬似言語を実行して成績（grade）を判定し出力する。\n\n' +
+      '```\n(1) もしscore ≥ 90ならば grade ← "A"\n(2) そうでなくscore ≥ 70ならば grade ← "B"\n(3) そうでなくscore ≥ 50ならば grade ← "C"\n(4) そうでなければ grade ← "D"\n(5) gradeを出力する\n```\n\n' +
+      '実行結果として出力される `grade` の値はどれか。',
+    choices: [
+      { id: '1', text: '"A"' },
+      { id: '2', text: '"B"' },
+      { id: '3', text: '"C"' },
+      { id: '4', text: '"D"' },
+    ],
+    answerId: '2',
+    explanation:
+      'scoreは72であり、90以上ではないが70以上であるため、2番目の条件に該当しgrade ← "B"となる。多分岐は上から順に条件を評価し、最初に真となった分岐のみが実行される。',
+    trace: {
+      sourceLines: [
+        'もしscore ≥ 90ならば grade ← "A"',
+        'そうでなくscore ≥ 70ならば grade ← "B"',
+        'そうでなくscore ≥ 50ならば grade ← "C"',
+        'そうでなければ grade ← "D"',
+        'gradeを出力する',
+      ],
+      initialVars: { score: 72 },
+      program: [
+        ifStmt(
+          1,
+          gte(v('score'), n(90)),
+          [assign(1, 'grade', str('A'))],
+          [
+            ifStmt(
+              2,
+              gte(v('score'), n(70)),
+              [assign(2, 'grade', str('B'))],
+              [
+                ifStmt(3, gte(v('score'), n(50)), [assign(3, 'grade', str('C'))], [
+                  assign(4, 'grade', str('D')),
+                ]),
+              ],
+            ),
+          ],
+        ),
+        output(5, v('grade')),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-018',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '各桁の数字の合計',
+    body:
+      '`num` の値が `549` であるとき、次の擬似言語を実行して各桁の数字の合計を求める。\n\n' +
+      '```\n(1) sum ← 0\n(2) numが0より大きい間、(3)〜(5)を繰り返す\n(3)   digit ← num mod 10\n(4)   sum ← sum + digit\n(5)   num ← num ÷ 10\n```\n\n' +
+      '実行終了時の `sum` の値はどれか。',
+    choices: [
+      { id: '1', text: '9' },
+      { id: '2', text: '13' },
+      { id: '3', text: '18' },
+      { id: '4', text: '549' },
+    ],
+    answerId: '3',
+    explanation:
+      '549を10で割った余り(9)を取り出してsumに加え、numを549÷10=54に更新する処理を繰り返す。5+4+9=18が各桁の合計となる。',
+    trace: {
+      sourceLines: [
+        'sum ← 0',
+        'numが0より大きい間、繰り返す',
+        '  digit ← num mod 10',
+        '  sum ← sum + digit',
+        '  num ← num ÷ 10',
+      ],
+      initialVars: { num: 549 },
+      program: [
+        assign(1, 'sum', n(0)),
+        whileStmt(2, gt(v('num'), n(0)), [
+          assign(3, 'digit', mod(v('num'), n(10))),
+          assign(4, 'sum', add(v('sum'), v('digit'))),
+          assign(5, 'num', div(v('num'), n(10))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-019',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '隣接要素間の差の最大値',
+    body:
+      '配列 `arr` の値が `[4, 9, 3, 15, 15, 2]` であるとき、次の擬似言語を実行して隣接要素間の差（後の要素 - 前の要素）の最大値を求める。\n\n' +
+      '```\n(1) maxDiff ← -9999\n(2) i ← 0\n(3) iが5未満の間、(4)〜(6)を繰り返す\n(4)   diff ← arr[i+1] - arr[i]\n(5)   もしdiff > maxDiffならば maxDiff ← diff\n(6)   i ← i + 1\n```\n\n' +
+      '実行終了時の `maxDiff` の値はどれか。',
+    choices: [
+      { id: '1', text: '0' },
+      { id: '2', text: '5' },
+      { id: '3', text: '12' },
+      { id: '4', text: '-13' },
+    ],
+    answerId: '3',
+    explanation:
+      '隣接差は 9-4=5, 3-9=-6, 15-3=12, 15-15=0, 2-15=-13 と計算され、この中の最大値は12（arr[2]からarr[3]への変化）である。',
+    trace: {
+      sourceLines: [
+        'maxDiff ← -9999',
+        'i ← 0',
+        'iが5未満の間、繰り返す',
+        '  diff ← arr[i+1] - arr[i]',
+        '  もしdiff > maxDiffならば maxDiff ← diff',
+        '  i ← i + 1',
+      ],
+      initialVars: { arr: [4, 9, 3, 15, 15, 2] },
+      program: [
+        assign(1, 'maxDiff', n(-9999)),
+        assign(2, 'i', n(0)),
+        whileStmt(3, lt(v('i'), n(5)), [
+          assign(4, 'diff', sub(idx('arr', add(v('i'), n(1))), idx('arr', v('i')))),
+          ifStmt(5, gt(v('diff'), v('maxDiff')), [assign(5, 'maxDiff', v('diff'))]),
+          assign(6, 'i', add(v('i'), n(1))),
+        ]),
+      ],
+    },
+  },
+  {
+    id: 'B-PSE-020',
+    subject: 'B',
+    category: 'pseudocode',
+    difficulty: 2,
+    title: '範囲内の要素数を数える',
+    body:
+      '配列 `arr` の値が `[5, 12, 18, 25, 20, 9, 15]` であるとき、次の擬似言語を実行して10以上20以下の範囲に入る要素の個数を数える。\n\n' +
+      '```\n(1) count ← 0\n(2) i ← 0\n(3) iが7未満の間、(4)〜(5)を繰り返す\n(4)   もしarr[i] ≥ 10 かつ arr[i] ≤ 20ならば count ← count + 1\n(5)   i ← i + 1\n```\n\n' +
+      '実行終了時の `count` の値はどれか。',
+    choices: [
+      { id: '1', text: '2' },
+      { id: '2', text: '3' },
+      { id: '3', text: '4' },
+      { id: '4', text: '7' },
+    ],
+    answerId: '3',
+    explanation: '10以上20以下の範囲に入るのは12, 18, 20, 15の4個であるため、countは4になる。',
+    trace: {
+      sourceLines: [
+        'count ← 0',
+        'i ← 0',
+        'iが7未満の間、繰り返す',
+        '  もしarr[i] ≥ 10 かつ arr[i] ≤ 20ならば count ← count + 1',
+        '  i ← i + 1',
+      ],
+      initialVars: { arr: [5, 12, 18, 25, 20, 9, 15] },
+      program: [
+        assign(1, 'count', n(0)),
+        assign(2, 'i', n(0)),
+        whileStmt(3, lt(v('i'), n(7)), [
+          ifStmt(4, and(gte(idx('arr', v('i')), n(10)), lte(idx('arr', v('i')), n(20))), [
+            assign(4, 'count', add(v('count'), n(1))),
+          ]),
           assign(5, 'i', add(v('i'), n(1))),
         ]),
       ],
