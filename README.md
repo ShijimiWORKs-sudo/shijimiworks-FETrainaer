@@ -61,6 +61,38 @@ Playwrightは`playwright.config.ts`の`webServer`設定により、`npm run prev
 `src/data/questions/subjectA.*.ts` / `subjectB.*.ts` にカテゴリ別に定義されており、
 擬似言語トレース付き問題は `src/lib/pseudocode/dsl.ts` のビルダー関数でASTを組み立てます。
 
+## iPhoneでの利用方法（PWAとしてインストール）
+
+このアプリはPWA（Progressive Web App）です。ネイティブアプリのようにホーム画面に追加して、
+オフラインでも起動できます。
+
+### 1. GitHub Pagesへのデプロイ（初回のみ設定）
+
+`main`ブランチへのpush時に`.github/workflows/deploy.yml`が自動でビルド・デプロイします。
+初回のみ、GitHubリポジトリの **Settings → Pages → Build and deployment → Source** を
+「GitHub Actions」に設定してください。設定後、pushするたびに
+`https://<組織名>.github.io/<リポジトリ名>/`（例:
+`https://shijimiworks-sudo.github.io/shijimiworks-FETrainaer/`）に最新版が公開されます。
+
+サブパス配下（ドメイン直下ではない）へのデプロイに対応するため、ビルド時に
+`VITE_BASE_PATH=/<リポジトリ名>/` 環境変数でルートパスを指定しています
+（`vite.config.ts`参照）。ローカル開発・プレビュー・E2Eテストでは指定不要（`/`のまま）。
+
+GitHub Pagesは静的ホスティングのため、SPA内の任意パスへの直接アクセスやリロードは
+そのままでは404になります。`public/404.html`と`index.html`冒頭のスクリプトで
+（spa-github-pages方式の）リダイレクト救済を行っています。
+
+### 2. iPhoneのSafariでインストール
+
+1. iPhoneのSafariで、上記のGitHub PagesのURLを開く
+2. 共有ボタン（□に↑）をタップ
+3. 「ホーム画面に追加」を選択
+
+ホーム画面のアイコンから起動すると、アドレスバーのないアプリらしい見た目（standalone表示）で
+動作し、一度読み込んだ内容はオフラインでも利用できます（Service Workerによるキャッシュ）。
+学習データは端末のlocalStorageに保存されるため、この方法でインストールしたiPhone上でのみ
+記録が保持されます（端末間同期は非対応）。
+
 ## 継続開発
 
 `AGENTS.md` と `.codex/skills/fe-trainer-autonomous-dev/SKILL.md` に、このアプリの開発を

@@ -2,8 +2,14 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// GitHub Pagesなど、ドメイン直下ではなくサブパス配下（例: /shijimiworks-FETrainaer/）に
+// デプロイする場合は VITE_BASE_PATH でルートパスを指定する（末尾スラッシュ必須）。
+// 未指定時（ローカル開発・プレビュー・E2E）は従来通り '/' のまま。
+const base = process.env.VITE_BASE_PATH || '/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -17,13 +23,13 @@ export default defineConfig({
         background_color: '#f4f6fb',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         lang: 'ja',
         icons: [
-          { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: `${base}pwa-192.png`, sizes: '192x192', type: 'image/png' },
+          { src: `${base}pwa-512.png`, sizes: '512x512', type: 'image/png' },
+          { src: `${base}pwa-512.png`, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

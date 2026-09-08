@@ -52,6 +52,17 @@ Playwright E2Eは`playwright.config.ts`の`webServer`設定で`npm run preview`�
 ヒットテストが不安定になり、Playwrightのクリックが延々とリトライされることがある
 （`body { overflow-anchor: none }`で回避済み。安易に削除しない）。
 
+**既知の落とし穴（GitHub Pagesデプロイ）:** このアプリはGitHub Pagesの
+`/<リポジトリ名>/`というサブパス配下にデプロイされる（`.github/workflows/deploy.yml`が
+ビルド時に`VITE_BASE_PATH`環境変数を設定する）。新しくアセットやリンクを追加する際、
+`/pwa-192.png`のようなドメイン直下決め打ちの絶対パスを増やさないこと
+（`public/`配下のファイルはVercelが自動でbaseを付与するが、コード内で組み立てる文字列URLは
+`import.meta.env.BASE_URL`を使う）。ルーティングは`main.tsx`の
+`<BrowserRouter basename={import.meta.env.BASE_URL}>`で吸収している。
+また、GitHub Pagesは静的ホスティングのためSPA内パスへの直接アクセス/リロードは404になるので、
+`public/404.html`（リダイレクト）と`index.html`冒頭のURL復元スクリプト
+（spa-github-pages方式）をセットで維持すること。
+
 ## 問題データを追加する際の手順
 
 1. `src/data/questions/subjectA.*.ts` または `subjectB.*.ts` に`Question`オブジェクトを追加する
