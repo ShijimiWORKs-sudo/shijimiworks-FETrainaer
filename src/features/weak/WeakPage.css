@@ -1,0 +1,25 @@
+.weak-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 8px 0 16px;
+}
+
+.weak-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.weak-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.weak-list-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 4px;
+}

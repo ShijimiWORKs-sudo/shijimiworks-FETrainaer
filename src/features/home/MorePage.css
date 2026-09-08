@@ -1,0 +1,25 @@
+.more-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.more-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.more-list-arrow {
+  color: var(--color-text-muted);
+  font-size: 18px;
+}
+
+.more-settings-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+}
